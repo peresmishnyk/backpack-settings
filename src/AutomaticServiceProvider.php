@@ -250,7 +250,7 @@ trait AutomaticServiceProvider
             }
             // add the name of the current entity to the route name prefix
             // the result will be the current route name (not ending in dot)
-            $routeName .= $name;
+            $routeName = 'settings.' . $routeName . $name;
 
             // get an instance of the controller
             if ($this->hasGroupStack()) {
@@ -262,7 +262,7 @@ trait AutomaticServiceProvider
             $namespacedController = $groupNamespace . $controller;
             $controllerInstance = App::make($namespacedController);
 
-            return $controllerInstance->setupRoutes('setting', $routeName, $controller);
+            return $controllerInstance->setupRoutes('settings', $routeName, $controller);
         });
     }
 }

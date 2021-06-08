@@ -31,4 +31,9 @@ class SettingsModel extends Model
         return self::firstOrCreate(['key' => $id]);
     }
 
+    public function getAttribute($name)
+    {
+        return parent::getAttribute($name);
+    }
+
 }

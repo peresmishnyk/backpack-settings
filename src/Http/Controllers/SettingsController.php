@@ -6,10 +6,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Route;
 use Peresmishnyk\BackpackSettings\Exceptions\ConfigurationException;
-use Peresmishnyk\BackpackSettings\Facades\Settings;
-use Peresmishnyk\BackpackSettings\Interfaces\SettingsControllerInterface;
 use Peresmishnyk\BackpackSettings\Models\SettingsModel;
-use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
 
 abstract class SettingsController extends CrudController
 {
@@ -34,7 +31,7 @@ abstract class SettingsController extends CrudController
     {
         CRUD::setModel(SettingsModel::class);
 //        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . Settings::config('route_prefix'));
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/setting');
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/settings');
         CRUD::setEntityNameStrings('настройки', 'настройки');
     }
 
@@ -65,12 +62,13 @@ abstract class SettingsController extends CrudController
             $this->crud->addButton('line', 'update', 'view', 'crud::buttons.update', 'end');
         });
     }
+
     /**
      * Load routes for all operations.
      * Allow developers to load extra routes by creating a method that looks like setupOperationNameRoutes.
      *
-     * @param string $segment    Name of the current entity (singular).
-     * @param string $routeName  Route name prefix (ends with .).
+     * @param string $segment Name of the current entity (singular).
+     * @param string $routeName Route name prefix (ends with .).
      * @param string $controller Name of the current controller.
      */
     public function setupRoutes($segment, $routeName, $controller)
@@ -79,7 +77,7 @@ abstract class SettingsController extends CrudController
 
         if (count($matches[1])) {
             foreach ($matches[1] as $methodName) {
-                $this->{'setup'.$methodName.'Routes'}($segment, $routeName, $controller);
+                $this->{'setup' . $methodName . 'Routes'}($segment, $routeName, $controller);
             }
         }
     }
@@ -93,19 +91,17 @@ abstract class SettingsController extends CrudController
      */
     protected function setupUpdateRoutes($segment, $routeName, $controller)
     {
-        Route::get($segment . '/{id}/edit', [
-            'as' => $routeName . '.edit',
-            'uses' => $controller . '@edit',
-            'operation' => 'update',
-            'where' => ['id' => '^' . $this->key . '$']
-        ]);
+            Route::get($segment . '/'.$this->key.'/edit', [
+                'as' => $routeName . '.edit',
+                'uses' => $controller . '@edit',
+                'operation' => 'update',
+            ]);
 
-        Route::put($segment . '/{id}', [
-            'as' => $routeName . '.update',
-            'uses' => $controller . '@update',
-            'operation' => 'update',
-            'where' => ['id' => '^' . $this->key . '$']
-        ]);
+            Route::put($segment . '/'.$this->key, [
+                'as' => $routeName . '.update',
+                'uses' => $controller . '@update',
+                'operation' => 'update',
+            ]);
     }
 
     /**
@@ -149,7 +145,8 @@ abstract class SettingsController extends CrudController
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-        $item = $this->crud->update($this->segment,
+//        dd($this->crud->getStrippedSaveRequest());
+        $item = $this->crud->update($this->key,
             $this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
 
