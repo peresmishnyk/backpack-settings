@@ -1,10 +1,10 @@
 <?php
 
-namespace Peresmishnyk\BackpackSetting\Commands;
+namespace Peresmishnyk\BackpackSettings\Commands;
 
 use Illuminate\Console\Command;
 
-class SettingInstallCommand extends Command
+class SettingsInstallCommand extends Command
 {
     /**
      * The name and signature of the console command.

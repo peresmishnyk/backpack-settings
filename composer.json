@@ -1,5 +1,5 @@
 {
-    "name": "peresmishnyk/backpack-setting",
+    "name": "peresmishnyk/backpack-settings",
     "description": "Settings for laravel backpack",
     "license": "MIT",
     "authors": [
@@ -9,7 +9,7 @@
             "homepage": "https://peresmishnyk.com"
         }
     ],
-    "homepage": "https://github.com/peresmishnyk/backpack-setting",
+    "homepage": "https://github.com/peresmishnyk/backpack-settings",
     "keywords": [
         "Laravel", "Backpack", "Backpack for Laravel", "Backpack Addon", "BackpackSetting"
     ],
@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Peresmishnyk\\BackpackSetting\\": "src/"
+            "Peresmishnyk\\BackpackSettings\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Peresmishnyk\\BackpackSetting\\Tests\\": "tests"
+            "Peresmishnyk\\BackpackSettings\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -37,7 +37,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Peresmishnyk\\BackpackSetting\\AddonServiceProvider"
+                "Peresmishnyk\\BackpackSettings\\AddonServiceProvider"
             ]
         }
     }

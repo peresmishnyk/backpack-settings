@@ -1,11 +1,11 @@
 <?php
 
-namespace Peresmishnyk\BackpackSetting\Models;
+namespace Peresmishnyk\BackpackSettings\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class SettingModel extends Model
+class SettingsModel extends Model
 {
     use CrudTrait;
 

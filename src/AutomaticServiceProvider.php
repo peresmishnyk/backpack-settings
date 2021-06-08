@@ -1,7 +1,8 @@
 <?php
 
-namespace Peresmishnyk\BackpackSetting;
+namespace Peresmishnyk\BackpackSettings;
 
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
@@ -75,8 +76,13 @@ trait AutomaticServiceProvider
             $this->mergeConfigFrom($this->packageConfigFile(), $this->vendorNameDotPackageName());
         }
 
-        $this->app->singleton(Setting::class, function ($app) {
-            return new Setting();
+        $this->app->singleton('settings', function ($app) {
+            return new Settings($this->vendorNameDotPackageName());
+        });
+
+        $this->app->booting(function() {
+            $loader = AliasLoader::getInstance();
+            $loader->alias('Settings', \Peresmishnyk\BackpackSettings\Facades\Settings::class);
         });
 
         require __DIR__ . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR . 'helpers.php';
@@ -256,7 +262,7 @@ trait AutomaticServiceProvider
             $namespacedController = $groupNamespace . $controller;
             $controllerInstance = App::make($namespacedController);
 
-            return $controllerInstance->setupRoutes($name, $routeName, $controller);
+            return $controllerInstance->setupRoutes('setting', $routeName, $controller);
         });
     }
 }
