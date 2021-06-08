@@ -11,7 +11,7 @@ class SettingInstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'setting:install';
+    protected $signature = 'settings:install';
 
     /**
      * The console command description.

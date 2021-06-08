@@ -15,7 +15,7 @@ class CreateSettingsTable extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->string('key')->primary();
-            $table->json('value');
+            $table->json('value')->nullable();
             $table->timestamps();
         });
     }

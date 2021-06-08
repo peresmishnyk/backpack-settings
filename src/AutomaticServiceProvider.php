@@ -4,7 +4,6 @@ namespace Peresmishnyk\BackpackSetting;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use Peresmishnyk\BackpackSetting\Commands\SettingInstallCommand;
 
 /**
  * This trait automatically loads package stuff, if they're present
@@ -76,9 +75,11 @@ trait AutomaticServiceProvider
             $this->mergeConfigFrom($this->packageConfigFile(), $this->vendorNameDotPackageName());
         }
 
-//        $this->app->singleton(Setting::class, function ($app) {
-//            return new Setting();
-//        });
+        $this->app->singleton(Setting::class, function ($app) {
+            return new Setting();
+        });
+
+        require __DIR__ . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR . 'helpers.php';
 
         $this->addRouteMacro();
     }
@@ -226,7 +227,7 @@ trait AutomaticServiceProvider
 
     private function addRouteMacro()
     {
-        Route::macro('setting', function ($name, $controller) {
+        Route::macro('settings', function ($name, $controller) {
             // put together the route name prefix,
             // as passed to the Route::group() statements
             $routeName = '';

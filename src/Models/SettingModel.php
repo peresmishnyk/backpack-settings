@@ -26,4 +26,9 @@ class SettingModel extends Model
 
     protected $fillable = ['key', 'value'];
 
+    public static function find($id)
+    {
+        return self::firstOrCreate(['key' => $id]);
+    }
+
 }
