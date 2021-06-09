@@ -29,7 +29,6 @@ class SettingsModel extends Model
 
     protected $casts = [
         'extras' => 'array',
-        'options' => 'array',
     ];
 
     public static function boot()
@@ -38,7 +37,6 @@ class SettingsModel extends Model
 
         static::retrieved(function($model){
             $model->setCasts(json_decode($model->extras_casts, JSON_OBJECT_AS_ARRAY) ?? []);
-            //$model->withFakes();
             //dump($model->getAttributes());
         });
     }
@@ -52,6 +50,7 @@ class SettingsModel extends Model
 
     public function setCasts(array $casts){
         $this->casts = array_merge($this->casts, $casts);
+        dump($this->casts);
     }
 
 

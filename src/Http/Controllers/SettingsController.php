@@ -14,6 +14,7 @@ abstract class SettingsController extends CrudController
     use UpdateOperation;
 
     protected $key;
+    protected $casts;
 
     public function __construct()
     {
@@ -24,13 +25,18 @@ abstract class SettingsController extends CrudController
     }
 
     protected function setupUpdateOperation(){
-//        foreach ($this->crud->getAllFieldNames() as $field_name) {
-//            $this->crud->modifyField($field_name, ['fake' => true]);
-//        };
+        foreach ($this->crud->getFields() as $field_name=>$field_config) {
+            // Make all field fake
+            $this->crud->modifyField($field_name, ['fake' => true]);
+            // Save casts in model
+            if (isset($field_config['cast'])){
+                $this->casts[$field_name] = $field_config['cast'];
+            }
+        };
 
-        CRUD::addField([
+        $this->crud->addField([
             'name' => 'extras_casts',
-            'type' => 'textarea',
+            'type' => 'hidden',
             'value' => json_encode($this->casts)
         ]);
     }
@@ -43,9 +49,7 @@ abstract class SettingsController extends CrudController
     public function setup()
     {
         CRUD::setModel(SettingsModel::class);
-//        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . Settings::config('route_prefix'));
         CRUD::setRoute(config('backpack.base.route_prefix') . '/' . \Settings::config('route_prefix'));
-        CRUD::setEntityNameStrings('настройки', 'настройки');
     }
 
 
@@ -84,42 +88,10 @@ abstract class SettingsController extends CrudController
         $this->crud->entry = $this->crud->getModel()->find($this->key)->withFakes();
 
         dump($this->crud->getFields());
-        // Make all fields fake
-
         dump($this->crud->entry->options);
-
-        //$this->crud->entry->setCasts($this->casts);
-
-
-        // Set additional cast ???
-//        $this->crud->entry->setCasts(['options' => 'array']);
-//        $this->crud->entry->extras_casts = $this->casts;
-//        dd($this->crud->entry->options);
-//        dump($this->crud->entry->getAttributes());
         return $this->edit($this->key);
     }
 
 
-    public function update()
-    {
-        $this->crud->hasAccessOrFail('update');
-
-        //dd($this->crud->getFields());
-
-        // execute the FormRequest authorization and validation, if one is required
-        $request = $this->crud->validateRequest();
-        // update the row in the db
-        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
-            $this->crud->getStrippedSaveRequest());
-        $this->data['entry'] = $this->crud->entry = $item;
-
-        // show a success message
-        \Alert::success(trans('backpack::crud.update_success'))->flash();
-
-        // save the redirect choice for next time
-        $this->crud->setSaveAction();
-
-        return $this->crud->performSaveAction($item->getKey());
-    }
 
 }
