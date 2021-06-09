@@ -15,14 +15,24 @@ abstract class SettingsController extends CrudController
 
     protected $key;
 
-    abstract protected function setupUpdateOperation();
-
     public function __construct()
     {
         if (!isset($this->key)) {
             throw new ConfigurationException(static::class . ' must declare protected property \'key\'');
         }
         return parent::__construct();
+    }
+
+    protected function setupUpdateOperation(){
+//        foreach ($this->crud->getAllFieldNames() as $field_name) {
+//            $this->crud->modifyField($field_name, ['fake' => true]);
+//        };
+
+        CRUD::addField([
+            'name' => 'extras_casts',
+            'type' => 'textarea',
+            'value' => json_encode($this->casts)
+        ]);
     }
 
     /**
@@ -36,34 +46,6 @@ abstract class SettingsController extends CrudController
 //        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . Settings::config('route_prefix'));
         CRUD::setRoute(config('backpack.base.route_prefix') . '/' . \Settings::config('route_prefix'));
         CRUD::setEntityNameStrings('настройки', 'настройки');
-    }
-
-    /**
-     * Add the default settings, buttons, etc that this operation needs.
-     */
-    protected function setupUpdateDefaults()
-    {
-        $this->crud->allowAccess('update');
-
-//        dd($this->crud->getModel());
-
-        $this->crud->operation('update', function () {
-            $this->crud->loadDefaultOperationSettingsFromConfig();
-
-            if ($this->crud->getModel()->translationEnabled()) {
-                $this->crud->addField([
-                    'name' => 'locale',
-                    'type' => 'hidden',
-                    'value' => request()->input('locale') ?? app()->getLocale(),
-                ]);
-            }
-
-            $this->crud->setupDefaultSaveActions();
-        });
-
-        $this->crud->operation(['list', 'show'], function () {
-            $this->crud->addButton('line', 'update', 'view', 'crud::buttons.update', 'end');
-        });
     }
 
 
@@ -99,24 +81,35 @@ abstract class SettingsController extends CrudController
      */
     public function editAdapter()
     {
-        $this->crud->entry = $this->crud->getModel()->find($this->key);
+        $this->crud->entry = $this->crud->getModel()->find($this->key)->withFakes();
+
+        dump($this->crud->getFields());
+        // Make all fields fake
+
+        dump($this->crud->entry->options);
+
+        //$this->crud->entry->setCasts($this->casts);
+
+
+        // Set additional cast ???
+//        $this->crud->entry->setCasts(['options' => 'array']);
+//        $this->crud->entry->extras_casts = $this->casts;
+//        dd($this->crud->entry->options);
+//        dump($this->crud->entry->getAttributes());
         return $this->edit($this->key);
     }
 
-    /**
-     * Update the specified resource in the database.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function update()
     {
         $this->crud->hasAccessOrFail('update');
 
+        //dd($this->crud->getFields());
+
         // execute the FormRequest authorization and validation, if one is required
         $request = $this->crud->validateRequest();
         // update the row in the db
-//        dd($this->crud->getStrippedSaveRequest());
-        $item = $this->crud->update($this->key,
+        $item = $this->crud->update($request->get($this->crud->model->getKeyName()),
             $this->crud->getStrippedSaveRequest());
         $this->data['entry'] = $this->crud->entry = $item;
 
@@ -128,6 +121,5 @@ abstract class SettingsController extends CrudController
 
         return $this->crud->performSaveAction($item->getKey());
     }
-
 
 }
