@@ -262,7 +262,7 @@ trait AutomaticServiceProvider
             $namespacedController = $groupNamespace . $controller;
             $controllerInstance = App::make($namespacedController);
 
-            return $controllerInstance->setupRoutes('settings', $routeName, $controller);
+            return $controllerInstance->setupRoutes(\Settings::config('route_prefix'), $routeName, $controller);
         });
     }
 }

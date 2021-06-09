@@ -3,6 +3,7 @@
 namespace Peresmishnyk\BackpackSettings\Http\Controllers;
 
 use Backpack\CRUD\app\Http\Controllers\CrudController;
+use Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Route;
 use Peresmishnyk\BackpackSettings\Exceptions\ConfigurationException;
@@ -10,6 +11,8 @@ use Peresmishnyk\BackpackSettings\Models\SettingsModel;
 
 abstract class SettingsController extends CrudController
 {
+    use UpdateOperation;
+
     protected $key;
 
     abstract protected function setupUpdateOperation();
@@ -31,7 +34,7 @@ abstract class SettingsController extends CrudController
     {
         CRUD::setModel(SettingsModel::class);
 //        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . Settings::config('route_prefix'));
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/settings');
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . \Settings::config('route_prefix'));
         CRUD::setEntityNameStrings('настройки', 'настройки');
     }
 
@@ -63,24 +66,6 @@ abstract class SettingsController extends CrudController
         });
     }
 
-    /**
-     * Load routes for all operations.
-     * Allow developers to load extra routes by creating a method that looks like setupOperationNameRoutes.
-     *
-     * @param string $segment Name of the current entity (singular).
-     * @param string $routeName Route name prefix (ends with .).
-     * @param string $controller Name of the current controller.
-     */
-    public function setupRoutes($segment, $routeName, $controller)
-    {
-        preg_match_all('/(?<=^|;)setup([^;]+?)Routes(;|$)/', implode(';', get_class_methods($this)), $matches);
-
-        if (count($matches[1])) {
-            foreach ($matches[1] as $methodName) {
-                $this->{'setup' . $methodName . 'Routes'}($segment, $routeName, $controller);
-            }
-        }
-    }
 
     /**
      * Define which routes are needed for this operation.
@@ -91,18 +76,19 @@ abstract class SettingsController extends CrudController
      */
     protected function setupUpdateRoutes($segment, $routeName, $controller)
     {
-            Route::get($segment . '/'.$this->key.'/edit', [
-                'as' => $routeName . '.edit',
-                'uses' => $controller . '@edit',
-                'operation' => 'update',
-            ]);
+        Route::get($segment . '/' . $this->key . '/edit', [
+            'as' => $routeName . '.edit',
+            'uses' => $controller . '@editAdapter',
+            'operation' => 'update',
+        ]);
 
-            Route::put($segment . '/'.$this->key, [
-                'as' => $routeName . '.update',
-                'uses' => $controller . '@update',
-                'operation' => 'update',
-            ]);
+        Route::put($segment . '/' . $this->key, [
+            'as' => $routeName . '.update',
+            'uses' => $controller . '@update',
+            'operation' => 'update',
+        ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -111,26 +97,10 @@ abstract class SettingsController extends CrudController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit()
+    public function editAdapter()
     {
-        $this->crud->hasAccessOrFail('update');
-        // get entry ID from Request (makes sure its the last ID for nested resources)
-        $id = $this->key;
-//        $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields());
-        // get the info for that entry
-        $model = $this->crud->getModel();
-        $entry = $model->firstOrCreate([$model->getKeyName() => $this->key]);
-        $this->data['entry'] = $entry;
-        $this->data['crud'] = $this->crud;
-        $this->data['saveAction'] = $this->crud->getSaveAction();
-        $this->data['title'] = $this->crud->getTitle() ?? trans('backpack::crud.edit') . ' ' . $this->crud->entity_name;
-
-        $this->data['id'] = $id;
-        $this->data['breadcrumbs'] = [];
-
-
-        // load the view from /resources/views/vendor/backpack/crud/ if it exists, otherwise load the one in the package
-        return view($this->crud->getEditView(), $this->data);
+        $this->crud->entry = $this->crud->getModel()->find($this->key);
+        return $this->edit($this->key);
     }
 
     /**
