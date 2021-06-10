@@ -66,14 +66,14 @@ abstract class SettingsController extends CrudController
      */
     protected function setupUpdateRoutes($segment, $routeName, $controller)
     {
-        Route::get($segment . '/' . $this->key . '/edit', [
-            'as' => $routeName . '.edit',
+        Route::get($segment . '/' . $routeName . '/edit', [
+            'as' => 'settings.' . $routeName . '.edit',
             'uses' => $controller . '@editAdapter',
             'operation' => 'update',
         ]);
 
-        Route::put($segment . '/' . $this->key, [
-            'as' => $routeName . '.update',
+        Route::put($segment . '/' . $routeName, [
+            'as' => 'settings.' . $routeName . '.update',
             'uses' => $controller . '@update',
             'operation' => 'update',
         ]);

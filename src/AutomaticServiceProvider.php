@@ -253,7 +253,7 @@ trait AutomaticServiceProvider
             }
             // add the name of the current entity to the route name prefix
             // the result will be the current route name (not ending in dot)
-            $routeName = 'settings.' . $routeName . $name;
+            $routeName = $routeName . $name;
 
             // get an instance of the controller
             if ($this->hasGroupStack()) {
