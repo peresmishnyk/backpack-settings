@@ -4,6 +4,7 @@ namespace Peresmishnyk\BackpackSettings;
 
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -63,6 +64,8 @@ trait AutomaticServiceProvider
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
         }
+
+        $this->configOverride();
     }
 
     /**
@@ -80,7 +83,7 @@ trait AutomaticServiceProvider
             return new Settings($this->vendorNameDotPackageName());
         });
 
-        $this->app->booting(function() {
+        $this->app->booting(function () {
             $loader = AliasLoader::getInstance();
             $loader->alias('Settings', \Peresmishnyk\BackpackSettings\Facades\Settings::class);
         });
@@ -264,5 +267,13 @@ trait AutomaticServiceProvider
 
             return $controllerInstance->setupRoutes(\Settings::config('route_prefix'), $routeName, $controller);
         });
+    }
+
+    private function configOverride()
+    {
+        $overrides = \Settings::config('config_override');
+        foreach ($overrides as $config_key => $settings_key) {
+            Config::set($config_key, \Settings::get($settings_key, Config::get($config_key)));
+        }
     }
 }

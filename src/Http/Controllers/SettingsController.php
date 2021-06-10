@@ -14,42 +14,46 @@ abstract class SettingsController extends CrudController
     use UpdateOperation;
 
     protected $key;
-    protected $casts;
+    protected $extras_casts = [];
 
     public function __construct()
     {
         if (!isset($this->key)) {
             throw new ConfigurationException(static::class . ' must declare protected property \'key\'');
         }
+
         return parent::__construct();
     }
 
-    protected function setupUpdateOperation(){
-        foreach ($this->crud->getFields() as $field_name=>$field_config) {
+    protected function setupDefaults()
+    {
+        CRUD::setModel(SettingsModel::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . \Settings::config('route_prefix'));
+
+        parent::setupDefaults();
+    }
+
+    protected function setupConfigurationForCurrentOperation()
+    {
+        parent::setupConfigurationForCurrentOperation();
+
+        foreach ($this->crud->getFields() as $field_name => $field_config) {
             // Make all field fake
             $this->crud->modifyField($field_name, ['fake' => true]);
-            // Save casts in model
-            if (isset($field_config['cast'])){
-                $this->casts[$field_name] = $field_config['cast'];
+            // Get extra casts
+            if (isset($field_config['cast'])) {
+                $this->extras_casts[$field_name] = $field_config['cast'];
             }
         };
 
         $this->crud->addField([
             'name' => 'extras_casts',
             'type' => 'hidden',
-            'value' => json_encode($this->casts)
+            'value' => json_encode($this->extras_casts)
         ]);
-    }
 
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     *
-     * @return void
-     */
-    public function setup()
-    {
-        CRUD::setModel(SettingsModel::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/' . \Settings::config('route_prefix'));
+        // Merge extra casts to model
+        $this->crud->model->mergeCasts($this->extras_casts);
     }
 
 
@@ -75,7 +79,6 @@ abstract class SettingsController extends CrudController
         ]);
     }
 
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -85,13 +88,9 @@ abstract class SettingsController extends CrudController
      */
     public function editAdapter()
     {
-        $this->crud->entry = $this->crud->getModel()->find($this->key)->withFakes();
-
-        dump($this->crud->getFields());
-        dump($this->crud->entry->options);
+        $model = $this->crud->getModel()->find($this->key);
+        $this->crud->entry = $model->mergeCasts($model->extras_casts)->withFakes();
         return $this->edit($this->key);
     }
-
-
 
 }
