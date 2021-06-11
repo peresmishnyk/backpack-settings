@@ -2,6 +2,7 @@
 
 namespace Peresmishnyk\BackpackSettings;
 
+use Illuminate\Contracts\Foundation\CachesConfiguration;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -66,7 +67,8 @@ trait AutomaticServiceProvider
         }
 
         $this->setupRoutes();
-        $this->configOverride();
+//        $this->configOverride();
+
     }
 
     /**
@@ -78,6 +80,13 @@ trait AutomaticServiceProvider
     {
         if ($this->packageDirectoryExistsAndIsNotEmpty('config')) {
             $this->mergeConfigFrom($this->packageConfigFile(), 'backpack.settings');
+        }
+
+        if (! ($this->app instanceof CachesConfiguration && $this->app->configurationIsCached())) {
+            $config = $this->app->make('config');
+            $config->set('test', array_merge(
+                ['test'=>'test'], $config->get('test', [])
+            ));
         }
 
         $this->app->singleton('settings', function ($app) {

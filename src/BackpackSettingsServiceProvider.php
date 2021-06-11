@@ -69,7 +69,7 @@ class BackpackSettingsServiceProvider extends ServiceProvider
         }
 
         $this->setupCustomRoutes($this->app->router);
-        $this->configOverride();
+//        $this->configOverride();
     }
 
     /**
@@ -94,7 +94,7 @@ class BackpackSettingsServiceProvider extends ServiceProvider
 
     private function configOverride()
     {
-        $overrides = \Settings::config('config_override');
+        $overrides = app('settings')->config('config_override');
         foreach ($overrides as $config_key => $settings_key) {
             Config::set($config_key, \Settings::get($settings_key, Config::get($config_key)));
         }

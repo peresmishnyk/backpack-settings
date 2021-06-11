@@ -37,27 +37,33 @@ class Settings
     {
         if (isNull($this->settings)) {
             if (!$this->cache->has($this->key)) {
-                $data = SettingsModel::all()->keyBy('key')->map(
-                    function ($el) {
-                        $el->mergeCasts($el->extras_casts)->withFakes();
-                        $attr_names = collect(
-                            array_diff(
-                                array_keys($el->getAttributes()),
-                                ['key', 'extras', 'extras_casts', 'updated_at', 'created_at']
-                            )
-                        )->flip();
-                        return $attr_names->map(
-                            function ($attr, $attr_name) use ($el) {
-                                return $el->getAttribute($attr_name);
-                            });
-                    });
+                $data = $this->get_settings_from_db();
                 $this->cache->put($this->key, $data);
                 $this->settings = $data;
             } else {
                 $this->settings = $this->cache->get($this->key);
             }
+            config(['settings' => $this->settings]);
         }
         return $this->settings;
+    }
+
+    private function get_settings_from_db()
+    {
+        return SettingsModel::all()->keyBy('key')->map(
+            function ($el) {
+                $el->mergeCasts($el->extras_casts)->withFakes();
+                $attr_names = collect(
+                    array_diff(
+                        array_keys($el->getAttributes()),
+                        ['key', 'extras', 'extras_casts', 'updated_at', 'created_at']
+                    )
+                )->flip();
+                return $attr_names->map(
+                    function ($attr, $attr_name) use ($el) {
+                        return $el->getAttribute($attr_name);
+                    });
+            });
     }
 
     public function refresh()
