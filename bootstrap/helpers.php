@@ -1,7 +1,8 @@
 <?php
 
-// if (! function_exists('yourHelperFunctionName')) {
-//     function yourHelperFunctionName($parameter) {
-//         // do something
-//     }
-// }
+if (!function_exists('backpack_settings_url')) {
+    function backpack_settings_url(string $name)
+    {
+        return route('settings.' . $name . '.edit');
+    }
+}

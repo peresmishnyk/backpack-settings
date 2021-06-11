@@ -65,6 +65,7 @@ trait AutomaticServiceProvider
             $this->bootForConsole();
         }
 
+        $this->setupRoutes();
         $this->configOverride();
     }
 
@@ -76,19 +77,17 @@ trait AutomaticServiceProvider
     public function register(): void
     {
         if ($this->packageDirectoryExistsAndIsNotEmpty('config')) {
-            $this->mergeConfigFrom($this->packageConfigFile(), $this->vendorNameDotPackageName());
+            $this->mergeConfigFrom($this->packageConfigFile(), 'backpack.settings');
         }
 
         $this->app->singleton('settings', function ($app) {
-            return new Settings($this->vendorNameDotPackageName());
+            return new Settings('backpack.settings');
         });
 
         $this->app->booting(function () {
             $loader = AliasLoader::getInstance();
             $loader->alias('Settings', \Peresmishnyk\BackpackSettings\Facades\Settings::class);
         });
-
-        require __DIR__ . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR . 'helpers.php';
 
         $this->addRouteMacro();
     }
@@ -100,12 +99,20 @@ trait AutomaticServiceProvider
      */
     protected function bootForConsole(): void
     {
-//        // Publishing the configuration file.
-//        if ($this->packageDirectoryExistsAndIsNotEmpty('config')) {
-//            $this->publishes([
-//                $this->packageConfigFile() => $this->publishedConfigFile(),
-//            ], 'config');
-//        }
+        // Publishing the configuration file.
+        if ($this->packageDirectoryExistsAndIsNotEmpty('config')) {
+            $this->publishes([
+                $this->packageConfigFile() => $this->publishedConfigFile(),
+            ], ['config', 'minimum']);
+        }
+
+        // Publishing the route file.
+
+        $this->publishes([
+            __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'route.php' =>
+                base_path('routes' . DIRECTORY_SEPARATOR . 'backpack' . DIRECTORY_SEPARATOR . 'settings.php')
+        ], ['config', 'minimum']);
+
 //
 //        // Publishing the views.
 //        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/views')) {
@@ -269,11 +276,4 @@ trait AutomaticServiceProvider
         });
     }
 
-    private function configOverride()
-    {
-        $overrides = \Settings::config('config_override');
-        foreach ($overrides as $config_key => $settings_key) {
-            Config::set($config_key, \Settings::get($settings_key, Config::get($config_key)));
-        }
-    }
 }
