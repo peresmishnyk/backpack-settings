@@ -13,14 +13,14 @@ class SettingsControllerBackpackCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'backpack:setting-controller';
+    protected $name = 'settings:controller';
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'backpack:setting-controller {name}';
+    protected $signature = 'settings:controller {name}';
 
     /**
      * The console command description.
@@ -47,7 +47,7 @@ class SettingsControllerBackpackCommand extends GeneratorCommand
     {
         $name = str_replace($this->laravel->getNamespace(), '', $name);
 
-        return $this->laravel['path'].'/'.str_replace('\\', '/', $name).'CrudController.php';
+        return $this->laravel['path'].'/'.str_replace('\\', '/', $name).'SettingsController.php';
     }
 
     /**
@@ -69,7 +69,7 @@ class SettingsControllerBackpackCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Http\Controllers\Admin';
+        return $rootNamespace.'\Http\Controllers\Admin\Settings';
     }
 
     /**

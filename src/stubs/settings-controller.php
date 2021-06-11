@@ -2,79 +2,59 @@
 
 namespace DummyNamespace;
 
-use App\Http\Requests\DummyClassRequest;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
+use App\Http\Requests\Settings\DummyClassRequest;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Peresmishnyk\BackpackSettings\Http\Controllers\SettingsController;
 
 /**
  * Class DummyClassCrudController
- * @package App\Http\Controllers\Admin
+ * @package App\Http\Controllers\Admin\Settings
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class DummyClassCrudController extends CrudController
+class DummyClassSettingsController extends SettingsController
 {
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
-    public function setup()
-    {
-        CRUD::setModel(\App\Models\DummyClass::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/dummy_class');
-        CRUD::setEntityNameStrings('dummy_class', 'DummyTable');
-    }
-
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
-    protected function setupListOperation()
-    {
-        CRUD::setFromDb(); // columns
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
-    }
-
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
-    protected function setupCreateOperation()
-    {
-        CRUD::setValidation(DummyClassRequest::class);
-
-        CRUD::setFromDb(); // fields
-
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
-    }
+    // ToDo: define settings key
+    protected $key = 'dummy_class';
 
     /**
      * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::setEntityNameStrings('dummy_class', 'DummyTable');
+        CRUD::setValidation(DummyClassRequest::class);
+
+        // Will be available as Settings::get('dummy_class.email')
+        CRUD::addField([
+            'name' => 'email',
+            'type' => 'text',
+        ]);
+
+        // Will be available as Settings::get('dummy_class.options')
+        CRUD::addField([   // Table
+            'name' => 'options',
+            'cast' => 'array',  // Custom property cast
+            'label' => 'Options',
+            'type' => 'table',
+            'entity_singular' => 'option', // used on the "Add X" button
+            'columns' => [
+                'name' => 'Name',
+                'desc' => 'Description',
+                'price' => 'Price'
+            ],
+            'max' => 5, // maximum rows allowed in the table
+            'min' => 0, // minimum rows allowed in the table
+        ]);
+
+        // Will be available as Settings::get('dummy_class.status')
+        CRUD::addField([
+            'name' => 'status',
+            'type' => 'checkbox',
+            'cast' => 'boolean'     // Custom property cast
+        ]);
     }
 }
+

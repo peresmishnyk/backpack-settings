@@ -33,20 +33,20 @@ class SettingsBackpackCommand extends Command
         $pluralName = Str::plural($name);
 
         // Create the CRUD Controller and show output
-        $this->call('backpack:setting-controller', ['name' => $name]);
+        $this->call('settings:controller', ['name' => $name]);
 
-//        // Create the CRUD Request and show output
-//        $this->call('backpack:crud-request', ['name' => $name]);
-//
-//        // Create the CRUD route
-//        $this->call('backpack:add-custom-route', [
-//            'code' => "Route::crud('$lowerName', '{$name}CrudController');",
-//        ]);
-//
-//        // Create the sidebar item
-//        $this->call('backpack:add-sidebar-content', [
-//            'code' => "<li class='nav-item'><a class='nav-link' href='{{ backpack_url('$lowerName') }}'><i class='nav-icon la la-question'></i> $pluralName</a></li>",
-//        ]);
+        // Create the CRUD Request and show output
+        $this->call('settings:request', ['name' => $name]);
+
+        // Create the CRUD route
+        $this->call('settings:add-custom-route', [
+            'code' => "Route::settings('$lowerName', '{$name}SettingsController');",
+        ]);
+
+        // Create the sidebar item
+        $this->call('backpack:add-sidebar-content', [
+            'code' => "<li class='nav-item'><a class='nav-link' href='{{ backpack_settings_url('$lowerName') }}'><i class='nav-icon la la-cog'></i> $pluralName</a></li>",
+        ]);
 
         // if the application uses cached routes, we should rebuild the cache so the previous added route will
         // be acessible without manually clearing the route cache.

@@ -3,11 +3,15 @@
 namespace Peresmishnyk\BackpackSettings;
 
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Peresmishnyk\BackpackSettings\Commands\SettingsAddCustomRouteContent;
 use Peresmishnyk\BackpackSettings\Commands\SettingsBackpackCommand;
 use Peresmishnyk\BackpackSettings\Commands\SettingsControllerBackpackCommand;
 use Peresmishnyk\BackpackSettings\Commands\SettingsInstallCommand;
+use Peresmishnyk\BackpackSettings\Commands\SettingsRequestBackpackCommand;
 
 class BackpackSettingsServiceProvider extends ServiceProvider
 {
@@ -21,8 +25,10 @@ class BackpackSettingsServiceProvider extends ServiceProvider
 
     protected $commands = [
         SettingsInstallCommand::class,
-        SettingsControllerBackpackCommand::class,
         SettingsBackpackCommand::class,
+        SettingsControllerBackpackCommand::class,
+        SettingsRequestBackpackCommand::class,
+        SettingsAddCustomRouteContent::class,
     ];
 
     /**
@@ -92,6 +98,41 @@ class BackpackSettingsServiceProvider extends ServiceProvider
         foreach ($overrides as $config_key => $settings_key) {
             Config::set($config_key, \Settings::get($settings_key, Config::get($config_key)));
         }
+    }
+
+    private function addRouteMacro()
+    {
+        Route::macro('settings', function ($name, $controller) {
+            // put together the route name prefix,
+            // as passed to the Route::group() statements
+            $routeName = '';
+            if ($this->hasGroupStack()) {
+                foreach ($this->getGroupStack() as $key => $groupStack) {
+                    if (isset($groupStack['name'])) {
+                        if (is_array($groupStack['name'])) {
+                            $routeName = implode('', $groupStack['name']);
+                        } else {
+                            $routeName = $groupStack['name'];
+                        }
+                    }
+                }
+            }
+            // add the name of the current entity to the route name prefix
+            // the result will be the current route name (not ending in dot)
+            $routeName = $routeName . $name;
+
+            // get an instance of the controller
+            if ($this->hasGroupStack()) {
+                $groupStack = $this->getGroupStack();
+                $groupNamespace = $groupStack && isset(end($groupStack)['namespace']) ? end($groupStack)['namespace'] . '\\' : '';
+            } else {
+                $groupNamespace = '';
+            }
+            $namespacedController = $groupNamespace . $controller;
+            $controllerInstance = App::make($namespacedController);
+
+            return $controllerInstance->setupRoutes(\Settings::config('route_prefix'), $routeName, $controller);
+        });
     }
 
 }

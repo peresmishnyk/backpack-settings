@@ -111,7 +111,7 @@ trait AutomaticServiceProvider
         $this->publishes([
             __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'route.php' =>
                 base_path('routes' . DIRECTORY_SEPARATOR . 'backpack' . DIRECTORY_SEPARATOR . 'settings.php')
-        ], ['config', 'minimum']);
+        ], ['minimum', 'custom_routes']);
 
 //
 //        // Publishing the views.
@@ -239,41 +239,6 @@ trait AutomaticServiceProvider
         }
 
         return false;
-    }
-
-    private function addRouteMacro()
-    {
-        Route::macro('settings', function ($name, $controller) {
-            // put together the route name prefix,
-            // as passed to the Route::group() statements
-            $routeName = '';
-            if ($this->hasGroupStack()) {
-                foreach ($this->getGroupStack() as $key => $groupStack) {
-                    if (isset($groupStack['name'])) {
-                        if (is_array($groupStack['name'])) {
-                            $routeName = implode('', $groupStack['name']);
-                        } else {
-                            $routeName = $groupStack['name'];
-                        }
-                    }
-                }
-            }
-            // add the name of the current entity to the route name prefix
-            // the result will be the current route name (not ending in dot)
-            $routeName = $routeName . $name;
-
-            // get an instance of the controller
-            if ($this->hasGroupStack()) {
-                $groupStack = $this->getGroupStack();
-                $groupNamespace = $groupStack && isset(end($groupStack)['namespace']) ? end($groupStack)['namespace'] . '\\' : '';
-            } else {
-                $groupNamespace = '';
-            }
-            $namespacedController = $groupNamespace . $controller;
-            $controllerInstance = App::make($namespacedController);
-
-            return $controllerInstance->setupRoutes(\Settings::config('route_prefix'), $routeName, $controller);
-        });
     }
 
 }
