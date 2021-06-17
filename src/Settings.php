@@ -52,7 +52,8 @@ class Settings
     {
         return SettingsModel::all()->keyBy('key')->map(
             function ($el) {
-                $el->mergeCasts($el->extras_casts)->withFakes();
+                $el->mergeCasts($el->extras_casts);
+                $el->withFakes();
                 $attr_names = collect(
                     array_diff(
                         array_keys($el->getAttributes()),
