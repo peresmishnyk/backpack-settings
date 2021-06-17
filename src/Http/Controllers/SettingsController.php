@@ -53,7 +53,7 @@ abstract class SettingsController extends CrudController
         ]);
 
         // Merge extra casts to model
-        $this->crud->model->mergeCasts($this->extras_casts ?? []);
+        $this->crud->model->mergeCasts($this->extras_casts);
     }
 
 
@@ -89,7 +89,7 @@ abstract class SettingsController extends CrudController
     public function editAdapter()
     {
         $model = $this->crud->getModel()->find($this->key);
-        $model->mergeCasts($model->extras_casts);
+        $model->mergeCasts($model->extras_casts ?? []);
         $this->crud->entry = $model->withFakes();
         return $this->edit($this->key);
     }
