@@ -89,7 +89,8 @@ abstract class SettingsController extends CrudController
     public function editAdapter()
     {
         $model = $this->crud->getModel()->find($this->key);
-        $this->crud->entry = $model->mergeCasts($model->extras_casts)->withFakes();
+        $model->mergeCasts($model->extras_casts);
+        $this->crud->entry = $model->withFakes();
         return $this->edit($this->key);
     }
 
