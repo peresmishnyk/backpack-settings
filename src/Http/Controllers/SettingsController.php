@@ -53,7 +53,7 @@ abstract class SettingsController extends CrudController
         ]);
 
         // Merge extra casts to model
-        $this->crud->model->mergeCasts($this->extras_casts);
+        $this->crud->model->mergeCasts($this->extras_casts ?? []);
     }
 
 
