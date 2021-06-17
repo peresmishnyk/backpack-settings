@@ -45,14 +45,6 @@ trait AutomaticServiceProvider
             $this->loadTranslationsFrom($this->packageLangsPath(), $this->vendorNameDotPackageName());
         }
 
-        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/views')) {
-            // Load published views
-            $this->loadViewsFrom($this->publishedViewsPath(), $this->vendorNameDotPackageName());
-
-            // Fallback to package views
-            $this->loadViewsFrom($this->packageViewsPath(), $this->vendorNameDotPackageName());
-        }
-
         if ($this->packageDirectoryExistsAndIsNotEmpty('database/migrations')) {
             $this->loadMigrationsFrom($this->packageMigrationsPath());
         }
@@ -84,9 +76,6 @@ trait AutomaticServiceProvider
 
         if (! ($this->app instanceof CachesConfiguration && $this->app->configurationIsCached())) {
             $config = $this->app->make('config');
-            $config->set('test', array_merge(
-                ['test'=>'test'], $config->get('test', [])
-            ));
         }
 
         $this->app->singleton('settings', function ($app) {
@@ -121,28 +110,6 @@ trait AutomaticServiceProvider
             __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'route.php' =>
                 base_path('routes' . DIRECTORY_SEPARATOR . 'backpack' . DIRECTORY_SEPARATOR . 'settings.php')
         ], ['minimum', 'custom_routes']);
-
-//
-//        // Publishing the views.
-//        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/views')) {
-//            $this->publishes([
-//                $this->packageViewsPath() => $this->publishedViewsPath(),
-//            ], 'views');
-//        }
-//
-//        // Publishing assets.
-//        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/assets')) {
-//            $this->publishes([
-//                $this->packageAssetsPath() => $this->publishedAssetsPath(),
-//            ], 'assets');
-//        }
-//
-//        // Publishing the translation files.
-//        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/lang')) {
-//            $this->publishes([
-//                $this->packageLangsPath() => $this->publishedLangsPath(),
-//            ], 'lang');
-//        }
 
         // Registering package commands.
         if (!empty($this->commands)) {

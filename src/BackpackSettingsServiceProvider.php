@@ -47,13 +47,13 @@ class BackpackSettingsServiceProvider extends ServiceProvider
             $this->loadTranslationsFrom($this->packageLangsPath(), $this->vendorNameDotPackageName());
         }
 
-        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/views')) {
-            // Load published views
-            $this->loadViewsFrom($this->publishedViewsPath(), $this->vendorNameDotPackageName());
-
-            // Fallback to package views
-            $this->loadViewsFrom($this->packageViewsPath(), $this->vendorNameDotPackageName());
-        }
+//        if ($this->packageDirectoryExistsAndIsNotEmpty('resources/views')) {
+//            // Load published views
+//            //$this->loadViewsFrom($this->publishedViewsPath(), $this->vendorNameDotPackageName());
+//
+//            // Fallback to package views
+//            //$this->loadViewsFrom($this->packageViewsPath(), $this->vendorNameDotPackageName());
+//        }
 
         if ($this->packageDirectoryExistsAndIsNotEmpty('database/migrations')) {
             $this->loadMigrationsFrom($this->packageMigrationsPath());
