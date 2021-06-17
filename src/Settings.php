@@ -35,7 +35,7 @@ class Settings
 
     private function get_settings()
     {
-        if (isNull($this->settings)) {
+        if (is_null($this->settings)) {
             if (!$this->cache->has($this->key)) {
                 $data = $this->get_settings_from_db();
                 $this->cache->put($this->key, $data);
